@@ -226,7 +226,13 @@ async function onSubmit() {
             }
             await auth.initializeAuth()
             success.value = true
-            setTimeout(() => router.push('/home'), 600)
+            setTimeout(() => {
+                if (role === 'screen') {
+                    router.push('/camera/select')
+                } else {
+                    router.push('/home')
+                }
+            }, 600)
         } else {
             throw new Error('เข้าสู่ระบบไม่สำเร็จ')
         }

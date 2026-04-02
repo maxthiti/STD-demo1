@@ -18,9 +18,18 @@ const MissedReport = () => import("../views/Admin/report/Missed.vue");
 const StrangerReport = () => import("../views/Admin/report/Stranger.vue");
 const StatsView = () => import("../views/Admin/report/StatsView.vue");
 const Holidays = () => import("../views/Admin/Holidays.vue");
+const Camera = () => import("../views/Admin/Camera.vue");
+const CameraSelect = () => import("../components/Camera/CameraSelect.vue");
+const CameraRealtime = () => import("../components/Camera/CameraRealtime.vue");
 
 const routes = [
   { path: "/", name: "login", component: Login },
+  { path: "/camera/select", name: "CameraSelect", component: CameraSelect },  
+  {
+    path: "/camera/realtime",
+    name: "CameraRealtime",
+    component: CameraRealtime,
+  },
   {
     path: "/home",
     name: "AdminHome",
@@ -106,6 +115,11 @@ const routes = [
         path: "holidays",
         name: "Holidays",
         component: Holidays,
+      },
+      {
+        path: "camera",
+        name: "Camera",
+        component: Camera,
       },
     ],
   },

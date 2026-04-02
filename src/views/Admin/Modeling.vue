@@ -1,5 +1,5 @@
 <template>
-    <div class="space-y-6">
+    <div class="space-y-6 max-[570px]:pt-14">
         <div class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
             <h1 class="text-lg md:text-3xl font-bold text-white">จัดการเชื่อมต่ออุปกรณ์</h1>
             <div v-if="auth.user?.role !== 'viewer'" class="w-full sm:w-auto flex justify-end">
@@ -110,9 +110,13 @@
 
             <div v-if="totalPages > 1" class="flex justify-center mt-6">
                 <div class="join">
+                    <button class="join-item btn btn-sm bg-transparent border-none"
+                        @click="changePage(1)" :disabled="currentPage === 1">
+                        «
+                    </button>
                     <button class="join-item btn btn-sm bg-transparent border-none" @click="changePage(currentPage - 1)"
                         :disabled="currentPage === 1">
-                        «
+                        ‹
                     </button>
                     <button v-for="page in visiblePages" :key="page"
                         class="join-item btn btn-sm bg-transparent border-none"
@@ -121,6 +125,10 @@
                     </button>
                     <button class="join-item btn btn-sm bg-transparent border-none" @click="changePage(currentPage + 1)"
                         :disabled="currentPage === totalPages">
+                        ›
+                    </button>
+                    <button class="join-item btn btn-sm bg-transparent border-none"
+                        @click="changePage(totalPages)" :disabled="currentPage === totalPages">
                         »
                     </button>
                 </div>

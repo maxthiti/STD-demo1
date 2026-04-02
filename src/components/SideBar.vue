@@ -21,8 +21,7 @@
         <div class="p-4 border-b overflow-hidden bg-gradient-to-r from-primary/5 to-secondary/5">
             <div class="flex items-center gap-2">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    <img src="/src/assets/swing.png" alt="CKK Logo"
-                        class="w-full h-full object-contain" />
+                    <img src="/src/assets/swing.png" alt="CKK Logo" class="w-full h-full object-contain" />
                     <!-- <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-500 to-yellow-400">
                     </div> -->
                 </div>
@@ -316,6 +315,23 @@
                             </router-link>
                         </li>
                     </ul>
+                </li>
+
+                <li v-if="auth.user?.role !== 'screen' && auth.user?.role !== 'teacher'">
+                    <router-link to="/home/camera"
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-base-200 transition-colors relative group"
+                        :class="{ 'bg-primary text-primary-content': isActive('/home/camera') }">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 10l4.553-2.276A2 2 0 0021 6.382V5a2 2 0 00-2-2H5a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L8 10m7 0v4a1 1 0 01-1 1H6a1 1 0 01-1-1V10m7 0H8" />
+                        </svg>
+                        <span v-show="isExpanded" class="font-medium whitespace-nowrap">เข้ากล้องแบบเรียลไทม์</span>
+                        <div v-show="!isExpanded"
+                            class="absolute left-full ml-2 px-3 py-2 bg-base-300 text-base-content rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                            เข้ากล้องแบบเรียลไทม์
+                        </div>
+                    </router-link>
                 </li>
 
                 <li v-if="auth.user?.role == 'super admin'">

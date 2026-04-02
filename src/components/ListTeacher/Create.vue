@@ -49,7 +49,10 @@
                         <label class="label">
                             <span class="label-text">รหัสบุคลากร</span>
                         </label>
-                        <input v-model="formData.userid" type="text" class="input input-bordered w-full" required />
+                        <input v-model="formData.userid" type="text"
+                            :class="['input input-bordered w-full', useridError ? 'border-error focus:border-error' : '']"
+                            required />
+                        <div v-if="useridError" class="text-sm text-error mt-1">{{ useridError }}</div>
                     </div>
 
                     <div class="form-control w-full">
@@ -138,6 +141,14 @@
                             <option value="พักงาน">พักงาน</option>
                         </select>
                     </div>
+
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text">RFID (ไม่บังคับ)</span>
+                        </label>
+                        <input v-model="formData.rfid" type="text" class="input input-bordered w-full"
+                            autocomplete="off" />
+                    </div>
                 </div>
 
                 <div class="modal-action">
@@ -160,6 +171,7 @@ const loading = ref(false)
 const previewImage = ref('')
 const fileName = ref('')
 const fileError = ref('')
+const useridError = ref('')
 
 const positionQuery = ref('')
 const positionOpen = ref(false)
@@ -179,7 +191,8 @@ const formData = ref({
     position: '',
     department: '',
     status: '',
-    picture: null
+    picture: null,
+    rfid: ''
 })
 
 const props = defineProps({
@@ -193,7 +206,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['success'])
+const emit = defineEmits(['success', 'error'])
 
 const filteredPositions = computed(() => {
     const q = positionQuery.value.trim().toLowerCase()
@@ -273,11 +286,13 @@ const openModal = () => {
         position: '',
         department: '',
         status: '',
-        picture: null
+        picture: null,
+        rfid: ''
     }
     previewImage.value = ''
     fileName.value = ''
     fileError.value = ''
+    useridError.value = ''
     positionQuery.value = ''
     departmentQuery.value = ''
     positionOpen.value = false
@@ -295,11 +310,13 @@ const closeModal = () => {
         position: '',
         department: '',
         status: '',
-        picture: null
+        picture: null,
+        rfid: ''
     }
     previewImage.value = ''
     fileName.value = ''
     fileError.value = ''
+    useridError.value = ''
     positionQuery.value = ''
     departmentQuery.value = ''
     positionOpen.value = false
@@ -390,8 +407,33 @@ const removeImage = () => {
 }
 
 const handleSubmit = async () => {
-    emit('success', formData.value)
-    closeModal()
+    useridError.value = ''
+    loading.value = true
+    emit('success', {
+        ...formData.value,
+        onError: async (err) => {
+            const errStr = String(err).replace(/\s+/g, '').toLowerCase();
+            if (errStr.includes('duplicateteacheruserid')) {
+                useridError.value = 'มีรหัสนี้แล้ว กรุณาใช้รหัสอื่น'
+            } else {
+                closeModal();
+                const { default: Swal } = await import('sweetalert2');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเพิ่มบุคลากรได้',
+                    confirmButtonColor: '#2563eb',
+                    didOpen: () => {
+                        document.getElementById('app')?.removeAttribute('aria-hidden')
+                    }
+                });
+            }
+            loading.value = false
+        },
+        onSuccess: () => {
+            closeModal()
+        }
+    })
 }
 
 defineExpose({

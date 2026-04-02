@@ -476,13 +476,17 @@ const extractEntryExit = (item) => {
 
 const extractEntryExitAttendance = (attendance) => {
     if (!attendance.timeStamps || attendance.timeStamps.length === 0) return { entry: null, exit: null }
-    const stamps = attendance.timeStamps.map(ts => ({
-        raw: ts.timestamp,
-        hour: parseInt(ts.timestamp.split(' ')[1].split(':')[0]),
-        time: ts.timestamp.split(' ')[1],
-        image: ts.image,
-        location: ts.location
-    }))
+    const stamps = attendance.timeStamps.map(ts => {
+        const timeStr = ts.timestamp.split(' ')[1];
+        const [h, m] = timeStr.split(':');
+        return {
+            raw: ts.timestamp,
+            hour: parseInt(h),
+            time: `${h}:${m}`,
+            image: ts.image,
+            location: ts.location
+        }
+    })
     const entry = stamps.filter(s => s.hour < 12).sort((a, b) => a.raw.localeCompare(b.raw))[0] || null
     const exit = stamps.filter(s => s.hour >= 12).sort((a, b) => a.raw.localeCompare(b.raw))[0] || null
     return { entry, exit }

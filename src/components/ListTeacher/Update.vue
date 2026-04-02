@@ -23,7 +23,11 @@
                         <label class="label">
                             <span class="label-text">รหัสบุคลากร</span>
                         </label>
-                        <input v-model="formData.userid" type="text" class="input input-bordered w-full" required />
+                        <input v-model="formData.userid" type="text" class="input input-bordered w-full" required
+                            :class="{ 'input-error': useridError }" autocomplete="off" />
+                        <label v-if="useridError" class="label">
+                            <span class="label-text-alt text-error">{{ useridError }}</span>
+                        </label>
                     </div>
 
                     <div class="form-control w-full">
@@ -94,6 +98,14 @@
 
                     <div class="form-control w-full">
                         <label class="label">
+                            <span class="label-text">RFID (ไม่บังคับ)</span>
+                        </label>
+                        <input v-model="formData.rfid" type="text" class="input input-bordered w-full"
+                            autocomplete="off" />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label">
                             <span class="label-text">รูปภาพ (ถ้าต้องการเปลี่ยน)</span>
                         </label>
                         <input ref="fileInputRef" type="file" @change="handleFileChange" accept="image/jpeg,image/jpg"
@@ -137,6 +149,7 @@ const fileError = ref('')
 const fileInputRef = ref(null)
 const firstNameError = ref('')
 const lastNameError = ref('')
+const useridError = ref('')
 const formData = ref({
     userid: '',
     pre_name: '',
@@ -145,7 +158,8 @@ const formData = ref({
     position: '',
     department: '',
     status: '',
-    picture: null
+    picture: null,
+    rfid: ''
 })
 
 const props = defineProps({
@@ -176,8 +190,10 @@ const openModal = async (teacher) => {
         position: teacher.position,
         department: teacher.department,
         status: 'ปกติ',
-        picture: null
+        picture: null,
+        rfid: teacher.rfid || ''
     }
+    useridError.value = ''
 
     if (teacher.picture) {
         try {
@@ -220,8 +236,10 @@ const closeModal = () => {
         position: '',
         department: '',
         status: '',
-        picture: null
+        picture: null,
+        rfid: ''
     }
+    useridError.value = ''
 }
 
 
@@ -339,6 +357,7 @@ const removeNewImage = () => {
 const handleSubmit = async () => {
     validateFirstName()
     validateLastName()
+    useridError.value = ''
     if (!isFormValid.value) {
         const { default: Swal } = await import('sweetalert2')
         Swal.fire({
@@ -371,7 +390,13 @@ const handleSubmit = async () => {
             closeModal()
         }
     } catch (error) {
+        const duplicate = error?.response?.status === 409 || (error?.response?.data?.error && error.response.data.error.includes('duplicate teacher userid'));
+        if (duplicate) {
+            useridError.value = 'มีรหัสนี้แล้ว กรุณาใช้รหัสอื่น';
+            return;
+        }
         console.error('Update teacher error:', error)
+        closeModal();
         const { default: Swal } = await import('sweetalert2')
         Swal.fire({
             icon: 'error',

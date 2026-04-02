@@ -1,5 +1,5 @@
 <template>
-    <div class="space-y-6">
+    <div class="space-y-6 max-[570px]:pt-14">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 class="text-xl sm:text-2xl font-bold text-white">จัดการบุคลากร</h2>
             <div v-if="auth.user?.role !== 'viewer'" class="flex gap-2">
@@ -224,7 +224,8 @@ const fetchTeachers = async () => {
                 email: teacher.userid + '@ckk.ac.th',
                 phone: teacher.phone || '-',
                 picture: teacher.picture ? imageBaseUrl + teacher.picture : '',
-                has_password: teacher.has_password
+                has_password: teacher.has_password,
+                rfid: teacher.rfid || ''
             }))
         }
     } catch (error) {
@@ -309,6 +310,8 @@ const handleUpdateSuccess = () => {
 }
 
 const handleCreateSuccess = async (formData) => {
+    const onError = formData.onError
+    const onSuccess = formData.onSuccess
     try {
         await teacherService.createTeacher(formData)
         await fetchTeachers()
@@ -322,8 +325,16 @@ const handleCreateSuccess = async (formData) => {
                 document.getElementById('app').removeAttribute('aria-hidden')
             }
         })
+        if (onSuccess) onSuccess()
     } catch (error) {
         console.error('Create teacher error:', error)
+        if (
+            (error?.response?.status === 409) ||
+            (error?.response?.data?.error && error.response.data.error.includes('duplicate teacher userid'))
+        ) {
+            if (onError) onError(error?.response?.data?.error || 'duplicate teacher userid')
+            return
+        }
         const { default: Swal } = await import('sweetalert2')
         Swal.fire({
             icon: 'error',
@@ -334,6 +345,7 @@ const handleCreateSuccess = async (formData) => {
                 document.getElementById('app').removeAttribute('aria-hidden')
             }
         })
+        if (onError) onError('other')
     }
 }
 
